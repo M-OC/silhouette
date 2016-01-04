@@ -1,10 +1,10 @@
 var config = {
 	"url": "/",
-	"refreshRate": 2000,
+	"refreshRate": 3000,
 	"watch": {
-		"ipAddress": true,
-		"browser": true,
-		"sessionTime": false,
+		"ipAddress": false,
+		"browser": false,
+		"sessionTime": true,
 		"windowSize": false,
 		"click": false,
 		"mouseMovement": false
@@ -17,8 +17,13 @@ var main = function(config) {
 	var snapshot = {};
 
 	var upload = function() {
-		window.XMLHttpRequest.open('POST', config.url, true);
-		window.XMLHttpRequest.send(JSON.stringify(snapshot));
+		if(config.watch["sessionTime"] === true){
+			watchFunctions.sessionTime();
+			console.log(Math.round(snapshot["sessionTime"] / 1000));
+		}
+
+		//window.XMLHttpRequest.open('POST', config.url, true);
+		//window.XMLHttpRequest.send(JSON.stringify(snapshot));
 
 		//reset bulk data here!
 	};
@@ -44,11 +49,22 @@ var main = function(config) {
 		    snapshot["browser"] = "Firefox";
 		} else if (agent.indexOf("MSIE") > -1) {
 		    snapshot["browser"] = "Internet Explorer";
+		} else {
+			snapshot["browser"] = "Unknown";
 		};
 	};
 
 	watchFunctions.click = function () {
-		console.log('WORKS!');
+		snapshot["clicks"] = snapshot["clicks"] || [];
+
+		document.getElementsByTagName("body")[0].onclick = function(event){
+			var clickEvent = {};
+			clickEvent.x = event.clientX;
+			clickEvent.y = event.clientY;
+			clickEvent.timeStamp = event.timeStamp;
+
+			snapshot["clicks"].push(clickEvent);
+		};
 	};
 
 	watchFunctions.mouseMovement = function () {
@@ -56,7 +72,7 @@ var main = function(config) {
 	};
 
 	watchFunctions.sessionTime = function () {
-
+		snapshot["sessionTime"] = snapshot["sessionTime"] + config["refreshRate"] || 0;
 	};
 
 	watchFunctions.windowSize = function () {
