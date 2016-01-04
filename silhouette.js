@@ -4,10 +4,10 @@ var config = {
 	"watch": {
 		"ipAddress": false,
 		"browser": false,
-		"sessionTime": true,
+		"sessionTime": false,
 		"windowSize": false,
 		"click": false,
-		"mouseMovement": false
+		"mouseMovement": true
 	}
 }
 
@@ -19,11 +19,10 @@ var main = function(config) {
 	var upload = function() {
 		if(config.watch["sessionTime"] === true){
 			watchFunctions.sessionTime();
-			console.log(Math.round(snapshot["sessionTime"] / 1000));
 		}
 
-		//window.XMLHttpRequest.open('POST', config.url, true);
-		//window.XMLHttpRequest.send(JSON.stringify(snapshot));
+		window.XMLHttpRequest.open('POST', config.url, true);
+		window.XMLHttpRequest.send(JSON.stringify(snapshot));
 
 		//reset bulk data here!
 	};
@@ -59,8 +58,8 @@ var main = function(config) {
 
 		document.getElementsByTagName("body")[0].onclick = function(event){
 			var clickEvent = {};
-			clickEvent.x = event.clientX;
-			clickEvent.y = event.clientY;
+			clickEvent.x = event.pageX;
+			clickEvent.y = event.pageY;
 			clickEvent.timeStamp = event.timeStamp;
 
 			snapshot["clicks"].push(clickEvent);
@@ -68,7 +67,18 @@ var main = function(config) {
 	};
 
 	watchFunctions.mouseMovement = function () {
+		snapshot["mouseMovement"] = [];
 
+		document.getElementsByTagName("body")[0].onmousemove = function(event){
+			if(event.timeStamp % 5 === 0){
+				var moveEvent = {};
+				moveEvent.x = event.pageX;
+				moveEvent.y = event.pageY;
+				moveEvent.timeStamp = event.timeStamp;
+				
+				snapshot["mouseMovement"].push(moveEvent);
+			}
+		};
 	};
 
 	watchFunctions.sessionTime = function () {
