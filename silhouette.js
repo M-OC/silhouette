@@ -1,12 +1,12 @@
 var config = {
 	"url": "/",
-	"refreshRate": 3000,
+	"refreshRate": 5000,
 	"watch": {
-		"ipAddress": false,
-		"browser": false,
-		"sessionTime": false,
-		"windowSize": false,
-		"click": false,
+		"ipAddress": true,
+		"browser": true,
+		"sessionTime": true,
+		"windowSize": true,
+		"clicks": true,
 		"mouseMovement": true
 	}
 }
@@ -16,15 +16,27 @@ var main = function(config) {
 	// 'snapshot' stores all the data collected by 'watchFunctions' methods.
 	var snapshot = {};
 
-	var upload = function() {
+	var generateSessionId = function () {
+		//Placeholder for something more sensible.
+		snapshot["SessionId"] = Math.floor(Math.random() * 1000) + new Date().getTime().toString() + Math.floor(Math.random() * 1000); 
+	};
+
+	var upload = function () {
 		if(config.watch["sessionTime"] === true){
 			watchFunctions.sessionTime();
 		}
+		//window.XMLHttpRequest.open('POST', config.url, true);
+		//window.XMLHttpRequest.send(JSON.stringify(snapshot));
 
-		window.XMLHttpRequest.open('POST', config.url, true);
-		window.XMLHttpRequest.send(JSON.stringify(snapshot));
+		console.log(snapshot);
 
-		//reset bulk data here!
+		//Clear local memory to avoid events piling up.
+		if(config.watch["clicks"] === true){
+			snapshot["clicks"] = [];
+		};
+		if(config.watch["mouseMovement"] === true){
+			snapshot["mouseMovement"] = [];
+		};
 	};
 
 // ================ Watch functions ======================================
@@ -53,8 +65,8 @@ var main = function(config) {
 		};
 	};
 
-	watchFunctions.click = function () {
-		snapshot["clicks"] = snapshot["clicks"] || [];
+	watchFunctions.clicks = function () {
+		snapshot["clicks"] = [];
 
 		document.getElementsByTagName("body")[0].onclick = function(event){
 			var clickEvent = {};
@@ -86,7 +98,10 @@ var main = function(config) {
 	};
 
 	watchFunctions.windowSize = function () {
-
+		snapshot["windowSize"] = {
+			"height": window.innerHeight,
+			"width": window.innerHeight
+		};
 	};
 
 
@@ -97,6 +112,7 @@ var main = function(config) {
 		}
 	}
 
+	generateSessionId();
 	setInterval(upload, config.refreshRate);
 }
 
