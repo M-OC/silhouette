@@ -25,17 +25,17 @@ var main = function(config) {
 		if(config.watch["sessionTime"] === true){
 			watchFunctions.sessionTime();
 		}
-		//window.XMLHttpRequest.open('POST', config.url, true);
-		//window.XMLHttpRequest.send(JSON.stringify(snapshot));
 
-		console.log(snapshot);
-
-		//Clear local memory to avoid events piling up.
-		if(config.watch["clicks"] === true){
-			snapshot["clicks"] = [];
-		};
-		if(config.watch["mouseMovement"] === true){
-			snapshot["mouseMovement"] = [];
+		var request = new XMLHttpRequest();
+		request.open('POST', config.url, true);
+		request.send(JSON.stringify(snapshot));
+		request.onreadystatechange = function() {
+			if(config.watch["clicks"] === true){
+				snapshot["clicks"] = [];
+			};
+			if(config.watch["mouseMovement"] === true){
+				snapshot["mouseMovement"] = [];
+			};
 		};
 	};
 
