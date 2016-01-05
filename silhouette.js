@@ -1,6 +1,6 @@
 var config = {
-	"url": "/",
-	"refreshRate": 5000,
+	"url": "http://localHost:8000/postUserData",
+	"refreshRate": 10000,
 	"watch": {
 		"ipAddress": true,
 		"browser": true,
@@ -26,16 +26,18 @@ var main = function(config) {
 			watchFunctions.sessionTime();
 		}
 
+		var outgoingData = JSON.stringify(snapshot);
 		var request = new XMLHttpRequest();
+
 		request.open('POST', config.url, true);
-		request.send(JSON.stringify(snapshot));
-		request.onreadystatechange = function() {
-			if(config.watch["clicks"] === true){
-				snapshot["clicks"] = [];
-			};
-			if(config.watch["mouseMovement"] === true){
-				snapshot["mouseMovement"] = [];
-			};
+		request.setRequestHeader("Content-Type", "application/json");
+		request.send(outgoingData);
+
+		if(config.watch["clicks"] === true){
+			snapshot["clicks"] = [];
+		};
+		if(config.watch["mouseMovement"] === true){
+			snapshot["mouseMovement"] = [];
 		};
 	};
 
